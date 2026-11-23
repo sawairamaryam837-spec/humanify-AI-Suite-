@@ -4,10 +4,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import {
-  CanonicalToolName,
+  type CanonicalToolName,
   getAiStatus,
   handleAiToolRequest,
-} from './api/_lib/aiEngine';
+} from './api/_lib/aiEngine.js';
 
 dotenv.config();
 

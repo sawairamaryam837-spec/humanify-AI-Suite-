@@ -1,5 +1,5 @@
-import { getAiStatus } from '../_lib/aiEngine';
-import type { ServerlessRequest, ServerlessResponse } from '../_lib/vercelAdapter';
+import { getAiStatus } from '../_lib/aiEngine.js';
+import type { ServerlessRequest, ServerlessResponse } from '../_lib/vercelAdapter.js';
 
 export default function handler(req: ServerlessRequest, res: ServerlessResponse) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');

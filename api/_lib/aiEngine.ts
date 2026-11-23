@@ -55,7 +55,7 @@ export function getAiStatus() {
   return {
     hasKey,
     model: 'gemini-3.8-flash',
-    fallbackModels: ['gemini-flash-latest', 'gemini-3.1-flash-lite'],
+    fallbackModels: ['gemini-3.1-flash-lite'],
     creator: 'Sawaira Maryam',
     suite: 'Humanify AI Suite',
     status: hasKey ? 'operational' : 'missing_api_key',
@@ -83,21 +83,6 @@ function classifyGeminiError(err: any): ClassifiedError {
       retryable: false,
     };
   }
-  if (
-    statusCode === 429 ||
-    upper.includes('RESOURCE_EXHAUSTED') ||
-    upper.includes('QUOTA') ||
-    upper.includes('RATE')
-  ) {
-    return {
-      httpStatus: 429,
-      code: 429,
-      status: 'RESOURCE_EXHAUSTED',
-      message: rawMessage,
-      userMessage: 'AI rate limit reached temporarily. Please wait a moment and try again.',
-      retryable: true,
-    };
-  }
   if (statusCode === 404 || upper.includes('NOT_FOUND')) {
     return {
       httpStatus: 502,
@@ -106,6 +91,22 @@ function classifyGeminiError(err: any): ClassifiedError {
       message: rawMessage,
       userMessage: 'Requested AI model was unavailable.',
       retryable: false,
+    };
+  }
+  if (
+    statusCode === 429 ||
+    upper.includes('RESOURCE_EXHAUSTED') ||
+    upper.includes('QUOTA') ||
+    upper.includes('RATE LIMIT') ||
+    upper.includes('RATE_LIMIT')
+  ) {
+    return {
+      httpStatus: 429,
+      code: 429,
+      status: 'RESOURCE_EXHAUSTED',
+      message: rawMessage,
+      userMessage: 'AI rate limit reached temporarily. Please wait a moment and try again.',
+      retryable: true,
     };
   }
   if (
@@ -174,9 +175,8 @@ async function callGemini(
   }
 
   const allModels: Array<{ name: string; useThinkingLow: boolean; timeoutMs: number }> = [
-    { name: 'gemini-3.8-flash', useThinkingLow: true, timeoutMs: 5000 },
-    { name: 'gemini-flash-latest', useThinkingLow: false, timeoutMs: 5000 },
-    { name: 'gemini-3.1-flash-lite', useThinkingLow: false, timeoutMs: 12000 },
+    { name: 'gemini-3.8-flash', useThinkingLow: true, timeoutMs: 4000 },
+    { name: 'gemini-3.1-flash-lite', useThinkingLow: false, timeoutMs: 8000 },
   ];
 
   const now = Date.now();
@@ -191,7 +191,7 @@ async function callGemini(
       const config: Record<string, any> = {
         systemInstruction: systemPrompt,
       };
-      if (modelSpec.useThinkingLow) {
+      if (modelSpec.useThinkingLow && ThinkingLevel?.LOW) {
         config.thinkingConfig = { thinkingLevel: ThinkingLevel.LOW };
       }
 
@@ -237,7 +237,7 @@ async function callGemini(
         modelCooldownUntil.set(modelSpec.name, Date.now() + 300_000);
       }
 
-      await sleep(150);
+      await sleep(100);
     }
   }
 

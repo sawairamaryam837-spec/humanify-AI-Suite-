@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ToolDefinition, ToolId } from '../../types';
-import { processAiTool } from '../../lib/api';
+import { processAiTool, extractErrorMessage } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { DiffViewer } from './DiffViewer';
 
@@ -174,9 +174,19 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
         });
 
         onShowToast('Transformation Complete', `${tool.name} successfully optimized your text.`, 'success');
+      } else {
+        const msg = extractErrorMessage(
+          response,
+          'The AI returned an empty result. Please try again.'
+        );
+        setErrorMessage(msg);
+        onShowToast('Processing Error', msg, 'error');
       }
-    } catch (err: any) {
-      const msg = err?.message || 'Failed to process AI request. Please try again.';
+    } catch (err: unknown) {
+      const msg = extractErrorMessage(
+        err,
+        'Failed to process AI request. Please try again.'
+      );
       setErrorMessage(msg);
       onShowToast('Processing Error', msg, 'error');
     } finally {

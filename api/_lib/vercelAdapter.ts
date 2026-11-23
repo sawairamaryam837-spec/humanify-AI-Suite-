@@ -1,5 +1,5 @@
 import type { IncomingMessage } from 'http';
-import { CanonicalToolName, handleAiToolRequest } from './aiEngine';
+import { type CanonicalToolName, handleAiToolRequest } from './aiEngine.js';
 
 export interface ServerlessRequest extends IncomingMessage {
   method?: string;

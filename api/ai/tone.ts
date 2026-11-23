@@ -1,3 +1,3 @@
-import { createToolHandler } from '../_lib/vercelAdapter';
+import { createToolHandler } from '../_lib/vercelAdapter.js';
 
 export default createToolHandler('tone');
