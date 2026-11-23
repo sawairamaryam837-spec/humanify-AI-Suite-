@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   Check,
   Info,
+  AlertCircle,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ToolDefinition, ToolId } from '../../types';
@@ -44,6 +45,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
   const [hasCopied, setHasCopied] = useState(false);
   const [metadata, setMetadata] = useState<Record<string, any>>({});
   const [demoNotice, setDemoNotice] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Tool-specific states
   const [intensity, setIntensity] = useState('standard');
@@ -59,6 +61,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     setOutput('');
     setMetadata({});
     setDemoNotice(null);
+    setErrorMessage(null);
     setViewMode('standard');
   }, [tool.id]);
 
@@ -84,6 +87,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     setOutput('');
     setMetadata({});
     setDemoNotice(null);
+    setErrorMessage(null);
   };
 
   const handleCopy = async () => {
@@ -119,6 +123,7 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
     setIsProcessing(true);
     setProcessingStep(1);
     setDemoNotice(null);
+    setErrorMessage(null);
 
     // Step animation ticker
     const timer1 = setTimeout(() => setProcessingStep(2), 500);
@@ -171,7 +176,9 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
         onShowToast('Transformation Complete', `${tool.name} successfully optimized your text.`, 'success');
       }
     } catch (err: any) {
-      onShowToast('Processing Error', err.message || 'Failed to process AI request. Please try again.', 'error');
+      const msg = err?.message || 'Failed to process AI request. Please try again.';
+      setErrorMessage(msg);
+      onShowToast('Processing Error', msg, 'error');
     } finally {
       clearTimeout(timer1);
       clearTimeout(timer2);
@@ -529,6 +536,23 @@ export const ToolWorkspace: React.FC<ToolWorkspaceProps> = ({
                 <div className="w-48 h-1.5 bg-purple-100 rounded-full mt-5 overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full animate-pulse w-3/4" />
                 </div>
+              </div>
+            ) : errorMessage ? (
+              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center min-h-[300px]">
+                <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center mb-3 text-rose-600">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <p className="text-sm font-semibold text-slate-900">Unable to complete AI request</p>
+                <p className="text-xs text-rose-700 mt-1.5 max-w-md leading-relaxed">
+                  {errorMessage}
+                </p>
+                <button
+                  onClick={handleTransform}
+                  className="mt-4 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Try Again</span>
+                </button>
               </div>
             ) : output ? (
               viewMode === 'diff' ? (

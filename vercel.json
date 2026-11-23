@@ -1,0 +1,41 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/ai/grammar-fix",
+      "destination": "/api/ai/grammar"
+    },
+    {
+      "source": "/api/ai/humanizer",
+      "destination": "/api/ai/humanize"
+    },
+    {
+      "source": "/api/ai/paraphraser",
+      "destination": "/api/ai/paraphrase"
+    },
+    {
+      "source": "/api/ai/tone-changer",
+      "destination": "/api/ai/tone"
+    },
+    {
+      "source": "/api/ai/simplifier",
+      "destination": "/api/ai/simplify"
+    },
+    {
+      "source": "/api/ai/summarizer",
+      "destination": "/api/ai/summarize"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
